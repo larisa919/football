@@ -2,7 +2,7 @@ import wrap
 wrap.add_sprite_dir("sprites")
 wrap.world.create_world(800,600)
 wrap.world.set_back_color(100,100,100)
-ball=wrap.sprite.add("ball",400,300,"blue")
+ball=wrap.sprite.add("ball",700,200,"blue")
 tablo=wrap.sprite.add_text("0:0",400,50, text_color=(255,255,255),font_size=70)
 left=wrap.sprite.add("mario-items",100,300,"block_bricks")
 right=wrap.sprite.add("mario-items",700,300,"moving_platform1")
@@ -13,15 +13,40 @@ wrap.sprite.set_size(right,200,30)
 wrap.sprite.set_size_percent(ball,150,150)
 wrap.sprite.set_angle(polosa,180)
 wrap.sprite.set_size_percent(polosa,1000,20)
-skorost_x=-10
-skorost_y=-10
+skorost_x=-20
+skorost_y=-20
+
+def stolknovenie_x(panel):
+    if wrap.sprite.is_collide_sprite(ball, left):
+        if skorost_x > 0:
+            wrap.sprite.move_right_to(ball, wrap.sprite.get_left(left))
+        else:
+            wrap.sprite.move_left_to(ball, wrap.sprite.get_right(left))
+        skorost_x = -skorost_x
+
+def stolknovenie_y(panel):
+    if wrap.sprite.is_collide_sprite(ball,left):
+        if skorost_y>0:
+             wrap.sprite.move_bottom_to(ball,wrap.sprite.get_top(left))
+        else:
+            wrap.sprite.move_top_to(ball,wrap.sprite.get_bottom(left))
+        skorost_y=-skorost_y
+
+
 
 
 @wrap.always()
 def polet_sharika():
     global skorost_x,skorost_y
 
-    wrap.sprite.move(ball,skorost_x,skorost_y)
+    wrap.sprite.move(ball,skorost_x,0)
+    stolknovenie_x(left)
+    stolknovenie_x(right)
+
+    wrap.sprite.move(ball, 0, skorost_y)
+    stolknovenie_y(left)
+    stolknovenie_y(right)
+
 
     if wrap.sprite.get_bottom(ball)>=600:
         wrap.sprite.move_bottom_to(ball,600)
@@ -29,9 +54,13 @@ def polet_sharika():
     if wrap.sprite.get_top(ball)<=0:
         wrap.sprite.move_top_to(ball,0)
         skorost_y=abs(skorost_y)
+    if wrap.sprite.get_right(ball)>=800:
+        wrap.sprite.move_right_to(ball,800)
+        skorost_x=-abs(skorost_x)
+    if wrap.sprite.get_left(ball) <= 0:
+        wrap.sprite.move_left_to(ball, 0)
+        skorost_x = abs(skorost_x)
 
-    if wrap.sprite.is_collide_sprite(ball,left):
-        skorost_x=-skorost_x
 
 def dvizenie_igroka(keys,button_right, button_left, button_down, button_up,igrok,r_max,l_min):
     if button_right in keys and wrap.sprite.get_right(igrok)<r_max :
