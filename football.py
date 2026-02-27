@@ -5,6 +5,7 @@ def sozdat_schet():
 
 def stolknovenie_x(panel):
     global skorost_x
+
     if wrap.sprite.is_collide_sprite(ball, panel):
         if skorost_x > 0:
             wrap.sprite.move_right_to(ball, wrap.sprite.get_left(panel))
@@ -41,12 +42,28 @@ def dvizenie_igroka(keys,button_right, button_left, button_down, button_up,igrok
         if wrap.sprite.get_left(igrok) <l_min:
             wrap.sprite.move_left_to(igrok, l_min)
 
+@wrap.on_key_down(wrap.K_SPACE)
+def nachat_otschet():
+    global sostoyanie
+    if sostoyanie==OZIDANIE:
+        sostoyanie=OTSCHET
+        wrap.sprite.hide(probel)
+        wrap.sprite.show(otschet)
 
+@wrap.always(1000)
+def process_ozidanie():
+    if sostoyanie!=OZIDANIE:
+        return
+    if wrap.sprite.is_visible(probel):
+        wrap.sprite.hide(probel)
+    else:wrap.sprite.show(probel)
 
 
 
 @wrap.on_key_always(wrap.K_LEFT,wrap.K_DOWN,wrap.K_UP,wrap.K_RIGHT,wrap.K_d,wrap.K_a,wrap.K_s,wrap.K_w)
 def dvizenie_pravogo (keys):
+    if sostoyanie!=IGRA:
+        return
     dvizenie_igroka(keys,wrap.K_d,wrap.K_a,wrap.K_s,wrap.K_w,left,400,0)
     dvizenie_igroka(keys,wrap.K_RIGHT,wrap.K_LEFT,wrap.K_DOWN,wrap.K_UP,right,800,400)
 
@@ -69,12 +86,22 @@ wrap.sprite.set_size(right,200,30)
 wrap.sprite.set_size_percent(ball,150,150)
 wrap.sprite.set_angle(polosa,180)
 wrap.sprite.set_size_percent(polosa,1000,20)
+probel=wrap.sprite.add_text("НАЖМИТЕ НА ПРОБЕЛ ДЛЯ НАЧАЛА ИГРЫ",400,300,False)
+otschet=wrap.sprite.add_text("ОТСЧЕТ",400,300,False)
 skorost_x=-20
 skorost_y=-20
+OZIDANIE=1
+OTSCHET=2
+IGRA=3
+GOL=4
+sostoyanie=OZIDANIE
+
 
 @wrap.always()
 def polet_sharika():
     global skorost_x,skorost_y,schet_praviy,schet_leviy
+    if sostoyanie!=IGRA:
+        return
 
     wrap.sprite.move(ball,skorost_x,0)
     stolknovenie_x(left)
