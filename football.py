@@ -1,4 +1,4 @@
-import wrap
+import wrap,time
 
 def sozdat_schet():
     return str(schet_leviy) + " | " + str(schet_praviy)
@@ -11,6 +11,16 @@ def stolknovenie_x(panel):
             wrap.sprite.move_right_to(ball, wrap.sprite.get_left(panel))
         else:
             wrap.sprite.move_left_to(ball, wrap.sprite.get_right(panel))
+        if wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*4:
+            print(5)
+        elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*3:
+            print(4)
+        elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*2:
+            print(3)
+        elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*1:
+            print(2)
+        else:
+            print(1)
         skorost_x = -skorost_x
 
 def stolknovenie_y(panel):
@@ -44,11 +54,23 @@ def dvizenie_igroka(keys,button_right, button_left, button_down, button_up,igrok
 
 @wrap.on_key_down(wrap.K_SPACE)
 def nachat_otschet():
-    global sostoyanie
+    global sostoyanie,time_0,a
     if sostoyanie==OZIDANIE:
         sostoyanie=OTSCHET
+        wrap.sprite.move_to(ball,400,300)
         wrap.sprite.hide(probel)
-        wrap.sprite.show(otschet)
+        wrap.sprite.hide(gol)
+        a=3
+        wrap.sprite_text.set_text(vremya,str(a))
+        wrap.sprite.show(vremya)
+        time_0=time.time()
+
+def nachat_ozidanie(vkluchi_gol):
+    global sostoyanie
+    sostoyanie=OZIDANIE
+    if vkluchi_gol==True:
+        wrap.sprite.show(gol)
+    wrap.sprite.show(probel)
 
 @wrap.always(1000)
 def process_ozidanie():
@@ -57,7 +79,6 @@ def process_ozidanie():
     if wrap.sprite.is_visible(probel):
         wrap.sprite.hide(probel)
     else:wrap.sprite.show(probel)
-
 
 
 @wrap.on_key_always(wrap.K_LEFT,wrap.K_DOWN,wrap.K_UP,wrap.K_RIGHT,wrap.K_d,wrap.K_a,wrap.K_s,wrap.K_w)
@@ -88,18 +109,26 @@ wrap.sprite.set_angle(polosa,180)
 wrap.sprite.set_size_percent(polosa,1000,20)
 probel=wrap.sprite.add_text("НАЖМИТЕ НА ПРОБЕЛ ДЛЯ НАЧАЛА ИГРЫ",400,300,False)
 otschet=wrap.sprite.add_text("ОТСЧЕТ",400,300,False)
-skorost_x=-20
-skorost_y=-20
+gol=wrap.sprite.add_text("ГООООООЛ", 400, 150, font_size=100,visible=False)
+skorost_x=-5
+skorost_y=-5
 OZIDANIE=1
 OTSCHET=2
 IGRA=3
 GOL=4
-sostoyanie=OZIDANIE
-
+sostoyanie=None
+a=3
+vremya=wrap.sprite.add_text(str(a),400,300,False,font_size=60)
+time_0=0
+nachat_ozidanie(False)
+verh=wrap.sprite.get_top(right)
+niz=wrap.sprite.get_bottom(right)
+visota=niz-verh
+visota_kvadrata=visota/5
 
 @wrap.always()
 def polet_sharika():
-    global skorost_x,skorost_y,schet_praviy,schet_leviy
+    global skorost_x,skorost_y,schet_praviy,schet_leviy,sostoyanie
     if sostoyanie!=IGRA:
         return
 
@@ -123,11 +152,33 @@ def polet_sharika():
         schet_praviy=schet_praviy+1
         wrap.sprite_text.set_text(tablo,sozdat_schet())
         skorost_x=-abs(skorost_x)
+
+        nachat_ozidanie(True)
     if wrap.sprite.get_left(ball) <= 0:
         wrap.sprite.move_left_to(ball, 0)
         schet_leviy = schet_leviy + 1
         wrap.sprite_text.set_text(tablo, sozdat_schet())
         skorost_x = abs(skorost_x)
+
+        nachat_ozidanie(True)
+
+@wrap.always(100)
+def smenit_otschet():
+    global time_0,a,sostoyanie
+    if sostoyanie!=OTSCHET:
+        return
+
+    time_1 = time.time()
+
+    if time_1 - time_0 >= 1:
+        a=a-1
+        if a<1:
+            sostoyanie=IGRA
+            wrap.sprite.hide(vremya)
+            return
+        wrap.sprite_text.set_text(vremya, str(a))
+        time_0=time.time()
+
 
 
 
