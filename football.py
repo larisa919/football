@@ -4,24 +4,39 @@ def sozdat_schet():
     return str(schet_leviy) + " | " + str(schet_praviy)
 
 def stolknovenie_x(panel):
-    global skorost_x
-
+    global skorost_x,skorost_y
+    k_x=0.5
+    k_y=2
     if wrap.sprite.is_collide_sprite(ball, panel):
         if skorost_x > 0:
             wrap.sprite.move_right_to(ball, wrap.sprite.get_left(panel))
         else:
             wrap.sprite.move_left_to(ball, wrap.sprite.get_right(panel))
+        # skorost_x = 0
+        # skorost_y=0
         if wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*4:
-            print(5)
+            k_x=0.5
+            k_y=2
         elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*3:
-            print(4)
+            k_x=1
+            k_y=1
+
         elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*2:
-            print(3)
+            k_x=2.5
+            k_y=0
         elif wrap.sprite.get_centery(ball)-wrap.sprite.get_top(panel)>=visota_kvadrata*1:
-            print(2)
+            k_x=1
+            k_y=-1
         else:
-            print(1)
-        skorost_x = -skorost_x
+            k_x=0.5
+            k_y=-2
+        if skorost_x > 0:
+            skorost_x = -bazovaya_scorost * k_x
+        else:
+            skorost_x = bazovaya_scorost * k_x
+
+        skorost_y = bazovaya_scorost * k_y
+
 
 def stolknovenie_y(panel):
     global skorost_y
@@ -36,19 +51,19 @@ def stolknovenie_y(panel):
 
 def dvizenie_igroka(keys,button_right, button_left, button_down, button_up,igrok,r_max,l_min):
     if button_right in keys and wrap.sprite.get_right(igrok)<r_max :
-        wrap.sprite.move(igrok,6,0)
+        wrap.sprite.move(igrok,8,0)
         if wrap.sprite.get_right(igrok) >r_max:
             wrap.sprite.move_right_to(igrok, r_max)
     if button_down in keys and wrap.sprite.get_bottom(igrok)<600:
-        wrap.sprite.move(igrok,0,6)
+        wrap.sprite.move(igrok,0,8)
         if wrap.sprite.get_bottom(igrok) > 600:
             wrap.sprite.move_bottom_to(igrok, 600)
     if button_up in keys and wrap.sprite.get_top(igrok)>0:
-        wrap.sprite.move(igrok,0,-6)
+        wrap.sprite.move(igrok,0,-8)
         if wrap.sprite.get_top(igrok) <0:
             wrap.sprite.move_top_to(igrok, 0)
     if button_left in keys and wrap.sprite.get_left(igrok)>l_min:
-        wrap.sprite.move(igrok,-6,0)
+        wrap.sprite.move(igrok,-8,0)
         if wrap.sprite.get_left(igrok) <l_min:
             wrap.sprite.move_left_to(igrok, l_min)
 
@@ -110,8 +125,10 @@ wrap.sprite.set_size_percent(polosa,1000,20)
 probel=wrap.sprite.add_text("НАЖМИТЕ НА ПРОБЕЛ ДЛЯ НАЧАЛА ИГРЫ",400,300,False)
 otschet=wrap.sprite.add_text("ОТСЧЕТ",400,300,False)
 gol=wrap.sprite.add_text("ГООООООЛ", 400, 150, font_size=100,visible=False)
-skorost_x=-5
-skorost_y=-5
+
+bazovaya_scorost=12
+skorost_x=-bazovaya_scorost
+skorost_y=-bazovaya_scorost
 OZIDANIE=1
 OTSCHET=2
 IGRA=3
